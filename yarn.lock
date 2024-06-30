@@ -1651,6 +1651,7 @@ __metadata:
     eslint-plugin-react-hooks: "npm:^4.6.2"
     eslint-plugin-react-refresh: "npm:^0.4.7"
     fetch-progress: "npm:^1.3.0"
+    konva: "npm:^9.3.12"
     localforage: "npm:^1.10.0"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
@@ -1792,6 +1793,13 @@ __metadata:
   dependencies:
     json-buffer: "npm:3.0.1"
   checksum: 10c0/aa52f3c5e18e16bb6324876bb8b59dd02acf782a4b789c7b2ae21107fab95fab3890ed448d4f8dba80ce05391eeac4bfabb4f02a20221342982f806fa2cf271e
+  languageName: node
+  linkType: hard
+
+"konva@npm:^9.3.12":
+  version: 9.3.12
+  resolution: "konva@npm:9.3.12"
+  checksum: 10c0/bc654e4d10d54e9265dad81ede6334d2d1e498b7c91f8e2bb36ce2652a69c2ff518c28431d0c3b03e0053729a3a4f328e4692d728057e23d870eca00aa732a93
   languageName: node
   linkType: hard
 
