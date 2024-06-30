@@ -11,7 +11,9 @@ function App() {
 
   const handleConnect = async () => {
     if (bluetooth.current === null) return
-    await bluetooth.current.connect()
+    const device = await bluetooth.current.connect()
+    console.log(device)
+    console.log(await bluetooth.current.getInformation(true))
   }
 
   return (

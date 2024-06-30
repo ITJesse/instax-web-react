@@ -41,16 +41,21 @@ export function parse(eventCode: number, command: number, payload: number[], sta
 				}
 
 			case 1:
+				// const batteryLevelInfo = oneByteInt(0, payload)
+				// const batteryCapacity = oneByteInt(1, payload)
+				// const chargerType = oneByteInt(2, payload)
+				// const chargerState = oneByteInt(3, payload)
 				return {
-					isCharging: oneByteInt(0, payload),
 					battery: oneByteInt(1, payload)
 				}
 
 			case 2:
 				return {
-					photosLeft: payload[0] & 15,
+					photosLeft: payload[0] & 0xF,
+					isCharging: (1 << 7 & payload[0]) >= 1,
+					waitTime: oneByteInt(3, payload)
 				}
-
+			
 			default:
 				break
 		}

@@ -40,10 +40,10 @@ export interface ImageSupportInfo {
 }
 
 export interface BatteryInfo {
-  isCharging: number;
   battery: number;
 }
 
 export interface PrinterInfo {
 	photosLeft: number;
+  isCharging: boolean;
 }
