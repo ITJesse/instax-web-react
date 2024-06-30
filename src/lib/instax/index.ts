@@ -1,10 +1,10 @@
 import { Buffer } from 'buffer'
 
-import { InstaxFilmVariant } from '../interfaces/PrinterStateConfig'
+import { InstaxBluetooth } from './bluetooth'
+import { encodeColor } from './color'
 import { INSTAX_OPCODES } from './events'
-import { InstaxBluetooth } from './instax.bluetooth'
-import { encodeColor } from './instax.color'
-import { parse } from './instax.parser'
+import { parse } from './parser'
+import { InstaxFilmVariant } from './types'
 
 export class InstaxPrinter extends InstaxBluetooth {
 	constructor() {
@@ -391,9 +391,4 @@ export class InstaxPrinter extends InstaxBluetooth {
 		// return the command packet as a Uint8Array with the checksum appended
 		return new Uint8Array([...commandPacket, checksum ^ 0xff])
 	}
-
-
-	connect;
-	disconnect;
-
 }

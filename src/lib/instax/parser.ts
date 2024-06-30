@@ -8,6 +8,10 @@ const oneByteInt = (offset: number, byteArray: number[]) => {
 	return byteArray.length < offset + 1 ? 0 : byteArray[offset]
 }
 
+const fourByteInt = (offset: number, byteArray: number[]) => {
+	return byteArray.length < offset + 4 ? 0 : (byteArray[offset] << 24) | (byteArray[offset + 1] << 16) | (byteArray[offset + 2] << 8) | byteArray[offset + 3]
+}
+
 
 export function parse(eventCode: number, command: number, payload: number[], status: number): any {
 	if (eventCode === INSTAX_OPCODES.DEVICE_INFO_SERVICE) {
@@ -26,12 +30,15 @@ export function parse(eventCode: number, command: number, payload: number[], sta
 				return { eventCode, command, payload }
 		}
 	} else if (eventCode === INSTAX_OPCODES.SUPPORT_FUNCTION_INFO) {
+		console.log(command, payload)
 		switch (command) {
 			case 0:
 				return {
 					width: twoByteInt(0, payload),
 					height: twoByteInt(2, payload),
-					packet: twoByteInt(4, payload) // idk - 512
+					picType: oneByteInt(4, payload),
+					picOption: oneByteInt(5, payload),
+					maxSize: fourByteInt(6, payload)
 				}
 
 			case 1:
@@ -41,6 +48,7 @@ export function parse(eventCode: number, command: number, payload: number[], sta
 				}
 
 			case 2:
+				console.log(oneByteInt(0, payload), oneByteInt(1, payload), oneByteInt(2, payload), oneByteInt(3, payload))
 				return {
 					photosLeft: payload[0] & 15,
 					isCharging: (1 << 7) & (payload[0] >= 1)
