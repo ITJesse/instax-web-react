@@ -68,12 +68,13 @@ function App() {
 
   return (
     <div className="w-full h-full min-h-screen bg-gray-50 flex flex-col">
-      <div className="w-full bg-gray-100 flex justify-between items-center px-4 py-2">
-        <div className="flex flex-row gap-8">
+      <div className="w-full bg-gray-100 flex justify-between items-center px-2 sm:px-4 py-1 sm:py-2">
+        <div className="flex flex-row gap-4 sm:gap-8">
           <Button
             size="xs"
             color="light"
             onClick={connected ? disconnect : connect}
+            className="whitespace-nowrap"
           >
             {connected ? (
               <IoMdCheckmarkCircle className="text-green-500 mr-1 h-4 w-4" />
