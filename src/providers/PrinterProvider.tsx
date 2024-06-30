@@ -82,14 +82,20 @@ export const PrinterProvider = ({ children }: { children: ReactNode }) => {
   const disconnect = useCallback(async () => {
     await printer.current.disconnect()
     setConnected(false)
+    setStatus(null)
+    setDeviceName('')
+    setQueue([])
   }, [])
 
   useEffect(() => {
+    const task = async () => {
+      const status = await printer.current.getInformation()
+      setStatus(status)
+    }
+
     if (connected) {
-      const interval = setInterval(async () => {
-        const status = await printer.current.getInformation()
-        setStatus(status)
-      }, 5000)
+      task()
+      const interval = setInterval(task, 5000)
       return () => clearInterval(interval)
     }
   }, [connected])
