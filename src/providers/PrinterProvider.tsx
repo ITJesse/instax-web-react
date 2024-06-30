@@ -71,21 +71,25 @@ export const PrinterProvider = ({ children }: { children: ReactNode }) => {
   const [status, setStatus] = useState<PrinterProviderCtx['status']>(null)
   const [queue, setQueue] = useState<PrinterQueueItem[]>([])
 
+  const onDisconnect = useCallback(() => {
+    setConnected(false)
+    setDeviceName('')
+    setStatus(null)
+    setQueue([])
+  }, [])
+
   const connect = useCallback(async () => {
     const device = await printer.current.connect()
     if (device) {
+      device.addEventListener('gattserverdisconnected', onDisconnect)
       setDeviceName((device.name ?? '').replace('(IOS)', ''))
       setConnected(true)
     }
-  }, [])
+  }, [onDisconnect])
 
   const disconnect = useCallback(async () => {
     queue.forEach((task) => task.signal.abort())
     await printer.current.disconnect()
-    setConnected(false)
-    setStatus(null)
-    setDeviceName('')
-    setQueue([])
   }, [queue])
 
   useEffect(() => {
