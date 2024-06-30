@@ -113,6 +113,11 @@ export class InstaxBluetooth {
             this._characteristicRef.write = null
             this._characteristicRef.notify = null
           })
+          // device.watchAdvertisements()
+          // device.addEventListener(
+          //   'advertisementreceived',
+          //   this.interpretIBeacon,
+          // )
           return device.gatt!.connect()
         })
         .then((server: BluetoothRemoteGATTServer) => {
@@ -165,4 +170,27 @@ export class InstaxBluetooth {
       return false
     }
   }
+
+  // protected interpretIBeacon(event: BluetoothAdvertisingEvent) {
+  //   const rssi = event.rssi ?? 0
+  //   const appleData = event.manufacturerData.get(0x004c)
+  //   if (
+  //     appleData?.byteLength != 23 ||
+  //     appleData?.getUint16(0, false) !== 0x0215
+  //   ) {
+  //     console.log({ isBeacon: false })
+  //   }
+  //   if (!appleData) return
+  //   const uuidArray = new Uint8Array(appleData.buffer, 2, 16)
+  //   const major = appleData.getUint16(18, false)
+  //   const minor = appleData.getUint16(20, false)
+  //   const txPowerAt1m = -appleData.getInt8(22)
+  //   console.log({
+  //     isBeacon: true,
+  //     uuidArray,
+  //     major,
+  //     minor,
+  //     pathLossVs1m: txPowerAt1m - rssi,
+  //   })
+  // }
 }
