@@ -25,13 +25,13 @@ export class InstaxBluetooth {
     }
   }
 
-  protected async notifications(callback: (event: any) => void): Promise<void> {
+  protected async notifications(callback: (event: Event) => void): Promise<void> {
     if (this._characteristicRef.notify == null) return;
 
     const va = await this._characteristicRef.notify.startNotifications();
 
     await new Promise<void>(() => {
-      va.addEventListener("characteristicvaluechanged", (e: any) => {
+      va.addEventListener("characteristicvaluechanged", (e) => {
         // Do something with the event data here...
         callback(e);
       });
@@ -41,34 +41,33 @@ export class InstaxBluetooth {
   protected async send(
     command: Uint8Array,
     response = true
-  ): Promise<Event | void> {
+  ) {
     if (this.isBusy === true) return;
     this.isBusy = true;
     let timeout: ReturnType<typeof setTimeout> | null = null;
 
     // console.log('SEND', Array.from(command))
-    let notificationHandle = null;
+    let notificationHandle: BluetoothRemoteGATTCharacteristic| null = null;
     let notificationPromise = null;
     let timeoutPromise = null;
     if (response === true) {
       notificationHandle =
         await this._characteristicRef.notify!.startNotifications();
 
-      notificationPromise = new Promise<Event>((resolve) => {
-        notificationHandle.addEventListener(
+      notificationPromise = new Promise((resolve) => {
+        notificationHandle?.addEventListener(
           "characteristicvaluechanged",
-          (e: Event) => {
+          (e) => {
             if (timeout) clearTimeout(timeout);
 
             resolve(e);
           },
-          { once: true }
         );
       });
 
       timeoutPromise = new Promise<Event>((resolve, reject) => {
         timeout = setTimeout(() => {
-          notificationHandle.removeEventListener(
+          notificationHandle?.removeEventListener(
             "characteristicvaluechanged",
             () => {}
           );
@@ -90,7 +89,7 @@ export class InstaxBluetooth {
       }
     } finally {
       if (timeout) clearTimeout(timeout);
-      await notificationHandle.stopNotifications();
+      await notificationHandle?.stopNotifications();
     }
   }
 

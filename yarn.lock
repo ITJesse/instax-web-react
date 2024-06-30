@@ -580,6 +580,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/web-bluetooth@npm:^0.0.20":
+  version: 0.0.20
+  resolution: "@types/web-bluetooth@npm:0.0.20"
+  checksum: 10c0/3a49bd9396506af8f1b047db087aeeea9fe4301b7fad4fe06ae0f6e00d331138caae878fd09e6410658b70b4aaf10e4b191c41c1a5ff72211fe58da290c7d003
+  languageName: node
+  linkType: hard
+
 "@typescript-eslint/eslint-plugin@npm:^7.13.1":
   version: 7.14.1
   resolution: "@typescript-eslint/eslint-plugin@npm:7.14.1"
@@ -1593,6 +1600,7 @@ __metadata:
   dependencies:
     "@types/react": "npm:^18.3.3"
     "@types/react-dom": "npm:^18.3.0"
+    "@types/web-bluetooth": "npm:^0.0.20"
     "@typescript-eslint/eslint-plugin": "npm:^7.13.1"
     "@typescript-eslint/parser": "npm:^7.13.1"
     "@vitejs/plugin-react-swc": "npm:^3.5.0"

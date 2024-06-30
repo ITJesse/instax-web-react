@@ -13,7 +13,7 @@ const fourByteInt = (offset: number, byteArray: number[]) => {
 }
 
 
-export function parse(eventCode: number, command: number, payload: number[], status: number): any {
+export function parse(eventCode: number, command: number, payload: number[], status: number) {
 	if (eventCode === INSTAX_OPCODES.DEVICE_INFO_SERVICE) {
 		const asciiResponse = String.fromCharCode(...payload.filter((code) => code !== 8))
 		switch (command) {
@@ -30,7 +30,6 @@ export function parse(eventCode: number, command: number, payload: number[], sta
 				return { eventCode, command, payload }
 		}
 	} else if (eventCode === INSTAX_OPCODES.SUPPORT_FUNCTION_INFO) {
-		console.log(command, payload)
 		switch (command) {
 			case 0:
 				return {
@@ -48,10 +47,8 @@ export function parse(eventCode: number, command: number, payload: number[], sta
 				}
 
 			case 2:
-				console.log(oneByteInt(0, payload), oneByteInt(1, payload), oneByteInt(2, payload), oneByteInt(3, payload))
 				return {
 					photosLeft: payload[0] & 15,
-					isCharging: (1 << 7) & (payload[0] >= 1)
 				}
 
 			default:
