@@ -95,7 +95,7 @@ export class InstaxBluetooth {
   /**
    * Connects to the printer.
    */
-  async connect(): Promise<BluetoothDevice> {
+  async connect(onDisconnect?: () => void): Promise<BluetoothDevice> {
     try {
       let deviceHandle: BluetoothDevice | null = null
       const connected = await navigator.bluetooth
@@ -112,6 +112,7 @@ export class InstaxBluetooth {
           device.addEventListener('gattserverdisconnected', () => {
             this._characteristicRef.write = null
             this._characteristicRef.notify = null
+            onDisconnect?.()
           })
           // device.watchAdvertisements()
           // device.addEventListener(

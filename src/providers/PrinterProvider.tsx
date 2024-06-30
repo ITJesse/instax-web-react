@@ -79,9 +79,8 @@ export const PrinterProvider = ({ children }: { children: ReactNode }) => {
   }, [])
 
   const connect = useCallback(async () => {
-    const device = await printer.current.connect()
+    const device = await printer.current.connect(onDisconnect)
     if (device) {
-      device.addEventListener('gattserverdisconnected', onDisconnect)
       setDeviceName((device.name ?? '').replace('(IOS)', ''))
       setConnected(true)
     }

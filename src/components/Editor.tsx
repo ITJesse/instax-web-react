@@ -98,7 +98,7 @@ export const Editor = () => {
     img.src = URL.createObjectURL(image)
   }, [image, frame])
 
-  // if (!status) return <Spinner />
+  if (!status) return <Spinner />
 
   return (
     <>
