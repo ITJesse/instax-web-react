@@ -4,6 +4,7 @@ import viteLogo from '/vite.svg'
 import { useRef } from 'react'
 
 import reactLogo from './assets/react.svg'
+import { AssetsLoader } from './components/AssetsLoader'
 import { InstaxPrinter } from './lib/instax'
 
 function App() {
@@ -17,7 +18,7 @@ function App() {
   }
 
   return (
-    <>
+    <AssetsLoader>
       <div>
         <a href="https://vitejs.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />
@@ -36,7 +37,7 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
-    </>
+    </AssetsLoader>
   )
 }
 
