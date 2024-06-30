@@ -40,6 +40,9 @@ type PrinterProviderCtx = {
     }
     polaroidCount: number
     type: InstaxFilmVariant
+    width: number
+    height: number
+    waitTime: number
   } | null
   queue: PrinterQueueItem[]
   connect: () => Promise<void>
@@ -91,7 +94,7 @@ export const PrinterProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const task = async () => {
-      const status = await printer.current.getInformation()
+      const status = await printer.current.getInformation(true)
       setStatus(status)
     }
 

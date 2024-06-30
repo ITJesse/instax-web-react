@@ -54,20 +54,16 @@ export class InstaxPrinter extends InstaxBluetooth {
   }
 
   async getInformation(includeType = false) {
-    const printerStatus: {
-      battery: {
-        charging: boolean
-        level: number
-      }
-      polaroidCount: number
-      type: InstaxFilmVariant
-    } = {
+    const printerStatus = {
       battery: {
         charging: false,
         level: 0,
       },
       polaroidCount: 0,
       type: InstaxFilmVariant.MINI,
+      width: 800,
+      height: 800,
+      waitTime: 15,
     }
     let response = null
     if (includeType == true) {
@@ -92,7 +88,8 @@ export class InstaxPrinter extends InstaxBluetooth {
             : response.height,
         ),
       ) as 800 | 840
-
+      printerStatus.width = width
+      printerStatus.height = height
       if (width == 1260 && height == 840) {
         printerStatus.type = InstaxFilmVariant.WIDE
       } else if (width == 800) {
@@ -114,6 +111,7 @@ export class InstaxPrinter extends InstaxBluetooth {
     )
     printerStatus.polaroidCount = response.photosLeft
     printerStatus.battery.charging = response.isCharging
+    printerStatus.waitTime = response.waitTime
     return printerStatus
   }
 

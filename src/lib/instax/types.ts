@@ -46,4 +46,5 @@ export interface BatteryInfo {
 export interface PrinterInfo {
   photosLeft: number
   isCharging: boolean
+  waitTime: number
 }
