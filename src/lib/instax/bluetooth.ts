@@ -95,7 +95,7 @@ export class InstaxBluetooth {
   /**
    * Connects to the printer.
    */
-  async connect(): Promise<boolean | BluetoothDevice> {
+  async connect(): Promise<BluetoothDevice> {
     try {
       let deviceHandle: BluetoothDevice | null = null
       const connected = await navigator.bluetooth
@@ -162,12 +162,12 @@ export class InstaxBluetooth {
         })
 
       if (connected === true) return deviceHandle!
-      else throw new Error()
+      throw new Error()
     } catch (error) {
       console.error('error on connect: ', error)
       this._characteristicRef.notify = null
       this._characteristicRef.write = null
-      return false
+      throw error
     }
   }
 

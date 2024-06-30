@@ -1,5 +1,6 @@
 import { Buffer } from 'buffer'
 
+import { delay } from '../utils'
 import { InstaxBluetooth } from './bluetooth'
 import { encodeColor } from './color'
 import { INSTAX_OPCODES } from './events'
@@ -17,7 +18,7 @@ export class InstaxPrinter extends InstaxBluetooth {
   }
 
   // Helper function to convert Uint8Array into a human-readable hexadecimal string
-  private _printableHex(command: Uint8Array): string {
+  private printableHex(command: Uint8Array): string {
     return Array.from(command, (byte) =>
       byte.toString(16).padStart(2, '0'),
     ).join(' ')
@@ -37,7 +38,7 @@ export class InstaxPrinter extends InstaxBluetooth {
   }
 
   // Sends a command to the printer
-  async sendCommand<T>(
+  private async sendCommand<T>(
     opCode: number,
     command: number[],
     awaitResponse = true,
@@ -56,17 +57,17 @@ export class InstaxPrinter extends InstaxBluetooth {
     const printerStatus: {
       battery: {
         charging: boolean
-        level: null | number
+        level: number
       }
-      polaroidCount: number | null
-      type: InstaxFilmVariant | null
+      polaroidCount: number
+      type: InstaxFilmVariant
     } = {
       battery: {
         charging: false,
-        level: null,
+        level: 0,
       },
-      polaroidCount: null,
-      type: null,
+      polaroidCount: 0,
+      type: InstaxFilmVariant.MINI,
     }
     let response = null
     if (includeType == true) {
@@ -116,211 +117,132 @@ export class InstaxPrinter extends InstaxBluetooth {
     return printerStatus
   }
 
-  async printImage(
-    printCount: number = 1,
-    callback: (imageId: number) => void,
-    signal: AbortSignal,
-  ): Promise<void> {
-    await new Promise((r) => setTimeout(r, 500))
-    let aborted = false
-    signal.addEventListener('abort', () => {
-      aborted = true
-    })
-
-    for (let index = 0; index < printCount; index++) {
-      await this.sendCommand(INSTAX_OPCODES.PRINT_IMAGE, [], true)
-      await new Promise((r) => setTimeout(r, 15000))
-
-      if (aborted) {
-        callback(-1)
-      } else {
-        callback(index + 1)
-      }
-    }
+  async printImage(): Promise<void> {
+    await this.sendCommand(INSTAX_OPCODES.PRINT_IMAGE, [], true)
   }
 
   async sendImage(
-    imageUrl: string,
-    print = false,
+    imageData: Buffer,
     type: InstaxFilmVariant,
-    callback: (progress: number) => void,
+    enable3DLut: boolean,
+    onProgress: (progress: number) => void,
     signal: AbortSignal,
   ): Promise<void> {
     console.log('SEND IAMGE')
-    const imageData = await this._base64ToByteArray(imageUrl)
-
-    console.log('IMAGE DATA: ', Array.from(imageData))
+    console.log('IMAGE DATA: ', imageData)
     const chunks = this.imageToChunks(
       imageData,
       type == InstaxFilmVariant.SQUARE ? 1808 : 900,
     )
 
-    let isSendingImage = true
-    let printTimeout = 15
     let abortedPrinting = false
 
     signal.addEventListener('abort', () => {
       // console.log("abORT sIGNaL")
-      isSendingImage = false
       abortedPrinting = true
+      this.sendCommand<{ status: number }>(
+        INSTAX_OPCODES.PRINT_IMAGE_DOWNLOAD_CANCEL,
+        [],
+      )
     })
 
-    while (isSendingImage == true && abortedPrinting == false) {
-      console.log(
-        'SEND LENGTH',
-        imageData.length,
-        Array.from(new Uint8Array(new Uint16Array([imageData.length]).buffer)),
+    console.log(
+      'SEND LENGTH',
+      imageData.length,
+      Array.from(new Uint8Array(new Uint16Array([imageData.length]).buffer)),
+    )
+    // 0x08 wide ; 0x00 square
+    // 0x02 wide at end; 0x00 square
+
+    try {
+      const imageDataLength = imageData.length // Assuming imageData.length gives the length you want to convert
+      // Convert imageDataLength to a Uint16Array
+      const uint16Array = new Uint16Array([imageDataLength])
+      // Create a DataView wrapping the ArrayBuffer of the Uint16Array
+      const dataView = new DataView(uint16Array.buffer)
+      // Get the 16-bit unsigned integer from the DataView in big-endian format
+      const bigEndianValue = dataView.getUint16(0, false) // false for big-endian
+      // Convert the big-endian value to a Uint8Array
+      const bigEndianBytes = new Uint8Array(
+        new Uint16Array([bigEndianValue]).buffer,
       )
-      // 0x08 wide ; 0x00 square
-      // 0x02 wide at end; 0x00 square
+      // Use the bigEndianBytes in your command
+      const response = await this.sendCommand(
+        INSTAX_OPCODES.PRINT_IMAGE_DOWNLOAD_START,
+        [
+          0x02,
+          enable3DLut ? 0x08 : 0x00,
+          0x00,
+          0x00,
+          0x00,
+          0x00,
+          ...Array.from(bigEndianBytes),
+        ],
+      )
 
-      try {
-        const imageDataLength = imageData.length // Assuming imageData.length gives the length you want to convert
+      if (response == null) throw new Error("Can't start sending")
 
-        // Convert imageDataLength to a Uint16Array
-        const uint16Array = new Uint16Array([imageDataLength])
-
-        // Create a DataView wrapping the ArrayBuffer of the Uint16Array
-        const dataView = new DataView(uint16Array.buffer)
-
-        // Get the 16-bit unsigned integer from the DataView in big-endian format
-        const bigEndianValue = dataView.getUint16(0, false) // false for big-endian
-
-        // Convert the big-endian value to a Uint8Array
-        const bigEndianBytes = new Uint8Array(
-          new Uint16Array([bigEndianValue]).buffer,
-        )
-
-        // Use the bigEndianBytes in your command
-        const response = await this.sendCommand(
-          INSTAX_OPCODES.PRINT_IMAGE_DOWNLOAD_START,
-          [0x02, 0x08, 0x00, 0x00, 0x00, 0x00, ...Array.from(bigEndianBytes)],
-        )
-
-        if (response == null) throw new Error()
-
-        console.log('SENDING PACKETS...')
-        for (let packetId = 0; packetId < chunks.length; packetId++) {
-          if (!isSendingImage) {
-            await new Promise((r) => setTimeout(r, 500))
-
-            await this.sendCommand(
-              INSTAX_OPCODES.PRINT_IMAGE_DOWNLOAD_CANCEL,
-              [],
-              false,
-            )
-
-            console.log('CANCEL COMMAND')
-            callback(-1)
-
-            break
-          }
-          console.log(`Packet ${packetId}/${chunks.length}`, isSendingImage)
-
-          const chunk = this.encode(
-            INSTAX_OPCODES.PRINT_IMAGE_DOWNLOAD_DATA,
-            Array.from(chunks[packetId]),
-          )
-
-          console.log('CHUNK', this._printableHex(chunk))
-
-          for (
-            let index = 0;
-            index < chunks[packetId].length + 7;
-            index += 182
-          ) {
-            const isPacketEnd = index > chunks[packetId].length + 7 - 182
-
-            const splitChunk = chunk.slice(index, index + 182)
-            // console.log("IS END", isPacketEnd, chunk.slice(index + 182, chunk.length))
-
-            const response = await this.send(splitChunk, isPacketEnd)
-
-            if (isPacketEnd)
-              if (isPacketEnd == true && response == null) {
-                // console.log(this._decode(response as Event)?.status);
-                throw new Error()
-              }
-
-            callback(
-              (packetId * chunks[packetId].length + index) /
-                (chunks[packetId].length * chunks.length),
-            )
-
-            // console.log(printTimeout)
-            await new Promise((r) => setTimeout(r, printTimeout))
-          }
-        }
-
-        if (abortedPrinting == false) {
-          const finishResponse = await this.sendCommand(
-            INSTAX_OPCODES.PRINT_IMAGE_DOWNLOAD_END,
+      console.log('SENDING PACKETS...')
+      for (let packetId = 0; packetId < chunks.length; packetId++) {
+        if (abortedPrinting) {
+          await delay(500)
+          await this.sendCommand(
+            INSTAX_OPCODES.PRINT_IMAGE_DOWNLOAD_CANCEL,
             [],
-            true,
+            false,
+          )
+          console.log('CANCEL COMMAND')
+          onProgress(-1)
+          break
+        }
+        console.log(`Packet ${packetId}/${chunks.length}`)
+
+        const chunk = this.encode(
+          INSTAX_OPCODES.PRINT_IMAGE_DOWNLOAD_DATA,
+          Array.from(chunks[packetId]),
+        )
+
+        console.log('CHUNK', this.printableHex(chunk))
+
+        for (let index = 0; index < chunks[packetId].length + 7; index += 182) {
+          const isPacketEnd = index > chunks[packetId].length + 7 - 182
+          const splitChunk = chunk.slice(index, index + 182)
+          // console.log("IS END", isPacketEnd, chunk.slice(index + 182, chunk.length))
+          const response = await this.send(splitChunk, isPacketEnd)
+          if (isPacketEnd && response == null) {
+            // console.log(this._decode(response as Event)?.status);
+            throw new Error('Failed to send packet')
+          }
+
+          onProgress(
+            (packetId * chunks[packetId].length + index) /
+              (chunks[packetId].length * chunks.length),
           )
 
-          console.log('finishResponse', finishResponse)
-
-          if (print != true) {
-            callback(-1)
-          } else {
-            callback(1)
-          }
+          // console.log(printTimeout)
+          await delay(25)
         }
+      }
 
-        isSendingImage = false
-      } catch (error) {
-        console.log('Eeeh', error)
-        printTimeout += 25
-
-        let resp = await this.sendCommand<{ status: number }>(
-          INSTAX_OPCODES.PRINT_IMAGE_DOWNLOAD_CANCEL,
+      if (!abortedPrinting) {
+        const finishResponse = await this.sendCommand(
+          INSTAX_OPCODES.PRINT_IMAGE_DOWNLOAD_END,
           [],
           true,
         )
-        if (resp.status) {
-          resp = await this.sendCommand(
-            INSTAX_OPCODES.PRINT_IMAGE_DOWNLOAD_CANCEL,
-            [],
-            true,
-          )
-        }
-        if (printTimeout > 200) {
-          isSendingImage = false
-          throw new Error('ging einfach net')
-        }
+        console.log('finishResponse', finishResponse)
       }
+    } catch (error) {
+      console.log('send image error', error)
+      await this.sendCommand<{ status: number }>(
+        INSTAX_OPCODES.PRINT_IMAGE_DOWNLOAD_CANCEL,
+        [],
+        true,
+      )
     }
   }
 
-  private async _base64ToByteArray(base64: string): Promise<Uint8Array> {
-    return new Promise<Uint8Array>((resolve, reject) => {
-      const buffer = Buffer.from(
-        String(base64).replace('data:image/jpeg;base64,', ''),
-        'base64',
-      )
-
-      const blob = new Blob([buffer], { type: 'image/jpeg' })
-      const file = new File([blob], 'filename.jpeg', { type: 'image/jpeg' })
-
-      const reader = new FileReader()
-      reader.onload = () => {
-        if (reader.result instanceof ArrayBuffer) {
-          const arrayBuffer = reader.result
-          const byteArray = new Uint8Array(arrayBuffer)
-          resolve(byteArray)
-        } else {
-          reject(new Error('Failed to read file'))
-        }
-      }
-      reader.onerror = (event) => {
-        reject(new Error(`Error reading file: ${event.target?.error}`))
-      }
-      reader.readAsArrayBuffer(file)
-    })
-  }
-
-  createImageDataChunk(index: number, chunk: Uint8Array): Uint8Array {
+  private createImageDataChunk(index: number, chunk: Uint8Array): Uint8Array {
     // Create a Uint32Array containing the index
     const indexArray = new Uint32Array([index])
 
@@ -341,7 +263,7 @@ export class InstaxPrinter extends InstaxBluetooth {
     return combined
   }
 
-  imageToChunks(imgData: Uint8Array, chunkSize = 900): Uint8Array[] {
+  private imageToChunks(imgData: Uint8Array, chunkSize = 900): Uint8Array[] {
     const imgDataChunks = []
 
     // pad the last chunk with zeroes if needed
@@ -404,7 +326,7 @@ export class InstaxPrinter extends InstaxBluetooth {
    * @param payload
    * @returns
    */
-  encode(opcode: number, payload: number[]): Uint8Array {
+  private encode(opcode: number, payload: number[]): Uint8Array {
     // Calculate the length of the command packet
     const length = payload.length + 7
 
