@@ -54,7 +54,7 @@ export const StatusBar = () => {
     const { level, charging } = status.battery
     if (charging) return 'text-green-500'
     if (level < 20) return 'text-red-500'
-    if (level < 35) return 'text-orange-500'
+    if (level < 50) return 'text-orange-500'
     return 'text-gray-500'
   }, [status])
 

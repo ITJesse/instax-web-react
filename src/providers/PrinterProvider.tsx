@@ -4,13 +4,15 @@ import localforage from 'localforage'
 //
 import {
   createContext,
-  ReactNode,
+  PropsWithChildren,
   useCallback,
   useContext,
   useEffect,
   useRef,
   useState,
 } from 'react'
+
+import { FakeInstaxPrinter } from '@/lib/instax/fake'
 
 import { InstaxPrinter } from '../lib/instax'
 import { InstaxFilmVariant } from '../lib/instax/types'
@@ -64,8 +66,14 @@ const DEFAULT_STATUS = {
 
 const PrinterProviderContext = createContext<PrinterProviderCtx>(DEFAULT_STATUS)
 
-export const PrinterProvider = ({ children }: { children: ReactNode }) => {
-  const printer = useRef(new InstaxPrinter())
+type Props = {
+  fake?: boolean
+}
+export const PrinterProvider = ({
+  children,
+  fake,
+}: PropsWithChildren<Props>) => {
+  const printer = useRef(fake ? new FakeInstaxPrinter() : new InstaxPrinter())
   const [connected, setConnected] = useState(false)
   const [deviceName, setDeviceName] = useState('')
   const [status, setStatus] = useState<PrinterProviderCtx['status']>(null)

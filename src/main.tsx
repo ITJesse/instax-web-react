@@ -10,7 +10,7 @@ import { PrinterProvider } from '@/providers/PrinterProvider.tsx'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <PrinterProvider>
+    <PrinterProvider fake>
       <Flowbite>
         <AssetsLoader>
           <App />
