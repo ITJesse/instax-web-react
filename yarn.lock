@@ -1993,7 +1993,6 @@ __metadata:
     eslint-plugin-react-refresh: "npm:^0.4.7"
     fetch-progress: "npm:^1.3.0"
     flowbite-react: "npm:^0.10.1"
-    jotai: "npm:^2.8.4"
     konva: "npm:^9.3.12"
     localforage: "npm:^1.10.0"
     nightwind: "npm:^1.1.13"
@@ -2112,21 +2111,6 @@ __metadata:
   bin:
     jiti: bin/jiti.js
   checksum: 10c0/05b9ed58cd30d0c3ccd3c98209339e74f50abd9a17e716f65db46b6a35812103f6bde6e134be7124d01745586bca8cc5dae1d0d952267c3ebe55171949c32e56
-  languageName: node
-  linkType: hard
-
-"jotai@npm:^2.8.4":
-  version: 2.8.4
-  resolution: "jotai@npm:2.8.4"
-  peerDependencies:
-    "@types/react": ">=17.0.0"
-    react: ">=17.0.0"
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-    react:
-      optional: true
-  checksum: 10c0/32bd3a41ea9de2f1a17dc179707a37d4c470a44973d8e48dbc8d5284fbf6333b678a203b10216049ab7e62ca34465cf3c765f64ed54cb0ef470246309415ff0f
   languageName: node
   linkType: hard
 
