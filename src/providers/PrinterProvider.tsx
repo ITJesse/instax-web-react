@@ -15,7 +15,6 @@ import {
 import { InstaxPrinter } from '../lib/instax'
 import { InstaxFilmVariant } from '../lib/instax/types'
 
-const _printer = new InstaxPrinter()
 type PrinterQueueItem = {
   id: string
   quantity: number
@@ -32,7 +31,6 @@ type PrinterQueueItem = {
     | 'canceled'
 }
 type PrinterProviderCtx = {
-  printer: InstaxPrinter
   connected: boolean
   deviceName: string
   status: {
@@ -51,7 +49,6 @@ type PrinterProviderCtx = {
 }
 
 const DEFAULT_STATUS = {
-  printer: _printer,
   deviceName: '',
   connected: false,
   status: null,
@@ -65,7 +62,7 @@ const DEFAULT_STATUS = {
 const PrinterProviderContext = createContext<PrinterProviderCtx>(DEFAULT_STATUS)
 
 export const PrinterProvider = ({ children }: { children: ReactNode }) => {
-  const printer = useRef(_printer)
+  const printer = useRef(new InstaxPrinter())
   const [connected, setConnected] = useState(false)
   const [deviceName, setDeviceName] = useState('')
   const [status, setStatus] = useState<PrinterProviderCtx['status']>(null)
@@ -248,7 +245,6 @@ export const PrinterProvider = ({ children }: { children: ReactNode }) => {
   return (
     <PrinterProviderContext.Provider
       value={{
-        printer: printer.current,
         deviceName,
         connected,
         status,
