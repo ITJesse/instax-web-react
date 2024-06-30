@@ -2,38 +2,38 @@ export function encodeColor(
   colorArray: string[],
   speed: number,
   repeat: number,
-  when: number
+  when: number,
 ): number[] {
-  const colorsBGR = colorArray.map((color) => convertHexColor(color));
-  const payloadSize = 4 + colorsBGR.length * 3;
-  const payload = new Uint8Array(payloadSize);
+  const colorsBGR = colorArray.map((color) => convertHexColor(color))
+  const payloadSize = 4 + colorsBGR.length * 3
+  const payload = new Uint8Array(payloadSize)
 
-  payload.set([when, colorsBGR.length, speed, repeat]);
+  payload.set([when, colorsBGR.length, speed, repeat])
 
   colorsBGR.flat().forEach((value, index) => {
-    if (value) payload[index + 4] = value;
-  });
+    if (value) payload[index + 4] = value
+  })
 
-  return Array.from(payload);
+  return Array.from(payload)
 }
 
 function convertHexColor(hex: string): number[] | null {
-  hex = hex.replace(/^#/, ""); // Remove the '#' if present
+  hex = hex.replace(/^#/, '') // Remove the '#' if present
 
   // Convert shorthand hex to full hex
   if (hex.length === 3) {
     hex = hex
-      .split("")
+      .split('')
       .map((char) => char.repeat(2))
-      .join("");
+      .join('')
   }
 
   // Parse hex to RGB
-  const rgb = parseInt(hex, 16);
-  const red = (rgb >> 16) & 255;
-  const green = (rgb >> 8) & 255;
-  const blue = rgb & 255;
+  const rgb = parseInt(hex, 16)
+  const red = (rgb >> 16) & 255
+  const green = (rgb >> 8) & 255
+  const blue = rgb & 255
 
   // Return BGR array
-  return [blue, green, red];
+  return [blue, green, red]
 }

@@ -28,9 +28,7 @@ function App() {
       </div>
       <h1>Vite + React</h1>
       <div className="card">
-        <button onClick={handleConnect}>
-          connect
-        </button>
+        <button onClick={handleConnect}>connect</button>
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
