@@ -74,18 +74,19 @@ export const PrinterProvider = ({ children }: { children: ReactNode }) => {
   const connect = useCallback(async () => {
     const device = await printer.current.connect()
     if (device) {
-      setDeviceName(device.name ?? '')
+      setDeviceName((device.name ?? '').replace('(IOS)', ''))
       setConnected(true)
     }
   }, [])
 
   const disconnect = useCallback(async () => {
+    queue.forEach((task) => task.signal.abort())
     await printer.current.disconnect()
     setConnected(false)
     setStatus(null)
     setDeviceName('')
     setQueue([])
-  }, [])
+  }, [queue])
 
   useEffect(() => {
     const task = async () => {
