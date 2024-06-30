@@ -41,7 +41,7 @@ export class InstaxPrinter extends InstaxBluetooth {
     const instaxCommandData: Uint8Array = this.encode(opCode, command);
 
     // Log the command as a hex string for debugging purposes
-    console.log(">", this._printableHex(instaxCommandData));
+    // console.log(">", this._printableHex(instaxCommandData));
 
     const response = await this.send(instaxCommandData, awaitResponse);
     return this._decode(response as Event) as T;
@@ -123,13 +123,11 @@ export class InstaxPrinter extends InstaxBluetooth {
     });
 
     for (let index = 0; index < printCount; index++) {
-      const response = await this.sendCommand(
+      await this.sendCommand(
         INSTAX_OPCODES.PRINT_IMAGE,
         [],
         true
       );
-      console.log(response);
-      // console.log(index)
       await new Promise((r) => setTimeout(r, 15000));
 
       if (aborted) {
@@ -198,7 +196,6 @@ export class InstaxPrinter extends InstaxBluetooth {
           [0x02, 0x08, 0x00, 0x00, 0x00, 0x00, ...Array.from(bigEndianBytes)]
         );
 
-        console.log(response, imageData.length);
         if (response == null) throw new Error();
 
         console.log("SENDING PACKETS...");
@@ -239,7 +236,7 @@ export class InstaxPrinter extends InstaxBluetooth {
             const response = await this.send(splitChunk, isPacketEnd);
 
             if (isPacketEnd)
-              console.log(this._decode(response as Event)?.status);
+              // console.log(this._decode(response as Event)?.status);
             if (isPacketEnd == true && response == null) {
               throw new Error();
             }
@@ -287,7 +284,6 @@ export class InstaxPrinter extends InstaxBluetooth {
             true
           );
         }
-        console.log(resp);
         if (printTimeout > 200) {
           isSendingImage = false;
           throw new Error("ging einfach net");
@@ -388,7 +384,7 @@ export class InstaxPrinter extends InstaxBluetooth {
 
     if (packet[0] != 0x61 || packet[1] != 0x42) throw new Error();
 
-    console.log(">", this._printableHex(new Uint8Array(packet)));
+    // console.log(">", this._printableHex(new Uint8Array(packet)));
 
     // Extract the event data from the packet
     const opCode = (packet[4] << 8) | packet[5];

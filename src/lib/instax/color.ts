@@ -4,7 +4,6 @@ export function encodeColor(
   repeat: number,
   when: number
 ): number[] {
-  console.log(colorArray);
   const colorsBGR = colorArray.map((color) => convertHexColor(color));
   const payloadSize = 4 + colorsBGR.length * 3;
   const payload = new Uint8Array(payloadSize);
