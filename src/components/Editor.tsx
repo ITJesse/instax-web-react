@@ -6,7 +6,7 @@ import { FaPlusCircle } from 'react-icons/fa'
 import miniFrame from '@/assets/polaroids/mini.webp'
 import squareFrame from '@/assets/polaroids/square.webp'
 import wideFrame from '@/assets/polaroids/wide.webp'
-import { usePrinter } from '@/providers/PrinterProvider'
+import { usePrinter } from '@/providers'
 
 const frameMap = {
   wide: {

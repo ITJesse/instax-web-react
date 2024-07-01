@@ -2,69 +2,12 @@ import { Buffer } from 'buffer'
 // provider for the instax printer
 import localforage from 'localforage'
 //
-import {
-  createContext,
-  PropsWithChildren,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
+import { PropsWithChildren, useCallback, useEffect, useRef, useState } from 'react'
 
+import { InstaxPrinter } from '@/lib/instax'
 import { FakeInstaxPrinter } from '@/lib/instax/fake'
 
-import { InstaxPrinter } from '../lib/instax'
-import { InstaxFilmVariant } from '../lib/instax/types'
-
-type PrinterQueueItem = {
-  id: string
-  quantity: number
-  signal: AbortController
-  sendProgress: number
-  printingProgress: number
-  status:
-    | 'pending'
-    | 'sending'
-    | 'sended'
-    | 'printing'
-    | 'done'
-    | 'error'
-    | 'canceled'
-}
-type PrinterProviderCtx = {
-  connected: boolean
-  deviceName: string
-  status: {
-    battery: {
-      charging: boolean
-      level: number
-    }
-    polaroidCount: number
-    type: InstaxFilmVariant
-    width: number
-    height: number
-    waitTime: number
-  } | null
-  queue: PrinterQueueItem[]
-  connect: () => Promise<void>
-  disconnect: () => Promise<void>
-  addPrintTask: (image: Blob, quantity?: number) => void
-  cancelTask: (id: string) => void
-}
-
-const DEFAULT_STATUS = {
-  deviceName: '',
-  connected: false,
-  status: null,
-  queue: [],
-  connect: async () => {},
-  disconnect: async () => {},
-  addPrintTask: async () => {},
-  cancelTask: () => {},
-}
-
-const PrinterProviderContext = createContext<PrinterProviderCtx>(DEFAULT_STATUS)
+import { PrinterProviderContext, PrinterProviderCtx, PrinterQueueItem } from './context'
 
 type Props = {
   fake?: boolean
@@ -269,6 +212,3 @@ export const PrinterProvider = ({
     </PrinterProviderContext.Provider>
   )
 }
-
-// eslint-disable-next-line react-refresh/only-export-components
-export const usePrinter = () => useContext(PrinterProviderContext)

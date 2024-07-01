@@ -4,25 +4,12 @@ import { useMemo } from 'react'
 import { FaPhotoFilm } from 'react-icons/fa6'
 import { IoMdCheckmarkCircle, IoMdCloseCircle } from 'react-icons/io'
 import {
-  MdBattery20,
-  MdBattery30,
-  MdBattery50,
-  MdBattery60,
-  MdBattery80,
-  MdBattery90,
-  MdBatteryAlert,
-  MdBatteryCharging20,
-  MdBatteryCharging30,
-  MdBatteryCharging50,
-  MdBatteryCharging60,
-  MdBatteryCharging80,
-  MdBatteryCharging90,
-  MdBatteryChargingFull,
-  MdBatteryFull,
-  MdBatteryUnknown,
+    MdBattery20, MdBattery30, MdBattery50, MdBattery60, MdBattery80, MdBattery90, MdBatteryAlert,
+    MdBatteryCharging20, MdBatteryCharging30, MdBatteryCharging50, MdBatteryCharging60,
+    MdBatteryCharging80, MdBatteryCharging90, MdBatteryChargingFull, MdBatteryFull, MdBatteryUnknown
 } from 'react-icons/md'
 
-import { usePrinter } from '@/providers/PrinterProvider'
+import { usePrinter } from '@/providers'
 
 export const StatusBar = () => {
   const { connect, disconnect, connected, deviceName, status } = usePrinter()

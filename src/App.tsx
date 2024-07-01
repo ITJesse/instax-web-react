@@ -4,8 +4,7 @@ import { Button } from 'flowbite-react'
 
 import { Editor } from '@/components/Editor'
 import { StatusBar } from '@/components/StatusBar'
-
-import { usePrinter } from './providers/PrinterProvider'
+import { usePrinter } from '@/providers'
 
 function App() {
   const { connect, connected } = usePrinter()
