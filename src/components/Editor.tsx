@@ -7,6 +7,7 @@ import miniFrame from '@/assets/polaroids/mini.webp'
 import squareFrame from '@/assets/polaroids/square.webp'
 import wideFrame from '@/assets/polaroids/wide.webp'
 import { usePrinter } from '@/providers'
+import { EditorProvider } from '@/providers/EditorProvider'
 
 const frameMap = {
   wide: {
@@ -26,7 +27,7 @@ const frameMap = {
   },
 }
 
-export const Editor = () => {
+const EditorContainer = () => {
   const { status } = usePrinter()
   const containerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -163,3 +164,9 @@ export const Editor = () => {
     </>
   )
 }
+
+export const Editor = () => (
+  <EditorProvider>
+    <EditorContainer />
+  </EditorProvider>
+)
